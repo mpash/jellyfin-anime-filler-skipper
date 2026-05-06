@@ -15,6 +15,8 @@ A Jellyfin plugin that identifies filler episodes in anime series using data fro
 2. Add repository URL: `https://raw.githubusercontent.com/mitch/jellyfin-anime-filler-skipper/main/manifest.json`
 3. Go to **Catalog**, find "Anime Filler Skipper", and install
 
+> Full instructions & documentation: **[mitch.github.io/jellyfin-anime-filler-skipper](https://mitch.github.io/jellyfin-anime-filler-skipper)**
+
 ### Manual install
 
 ```bash
