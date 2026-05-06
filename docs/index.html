@@ -38,17 +38,26 @@
         }
 
         .hero-icon {
-            display: block;
-            font-size: 3rem;
-            color: var(--accent);
-            margin-bottom: 24px;
+            display: inline-block;
+            width: 64px;
+            height: 64px;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .hero-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .hero h1 {
+            display: inline-block;
             font-size: clamp(2rem, 5vw, 3.5rem);
             font-weight: 700;
             margin-bottom: 12px;
             letter-spacing: -0.02em;
+            vertical-align: middle;
         }
 
         .hero .subtitle {
@@ -263,13 +272,12 @@
 <div class="copy-toast" id="toast">Copied!</div>
 
 <header class="hero">
-    <i class="fa-solid fa-forward-fast hero-icon"></i>
     <div class="badge-row">
         <span class="badge badge-jf"><i class="fa-solid fa-server"></i> Jellyfin 10.11+</span>
         <span class="badge badge-net"><i class="fa-solid fa-code"></i> .NET 9</span>
         <span class="badge badge-oss"><i class="fa-solid fa-code-branch"></i> Open Source</span>
     </div>
-    <h1>Anime Filler Skipper</h1>
+    <h1><span class="hero-icon"><img src="anime-skip-plugin-icon.png" alt=""></span>Anime Filler Skipper</h1>
     <p class="subtitle">
         Skip anime filler episodes automatically. Detects filler &amp; mixed-canon episodes
         using animefillerlist.com and integrates with Jellyfin's media segment system.
