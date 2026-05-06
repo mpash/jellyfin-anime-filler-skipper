@@ -9,11 +9,11 @@ RELEASE_DIR="$ROOT/release"
 SCRIPTS_DIR="$ROOT/scripts"
 
 # ── config ──────────────────────────────────────────────
-OWNER="mitch"
+OWNER="mpash"
 GUID="a8f1c3e4-5d6b-4a2e-9f1c-7e8d3a5b6c2f"
 CATEGORY="General"
 TARGET_ABI="10.11.8.0"
-DOWNLOAD_BASE="${DOWNLOAD_BASE:-https://github.com/mitch/jellyfin-anime-filler-skipper/releases/download}"
+DOWNLOAD_BASE="${DOWNLOAD_BASE:-https://github.com/mpash/jellyfin-anime-filler-skipper/releases/download}"
 
 # ── helpers ─────────────────────────────────────────────
 _die() { echo "ERROR: $*" >&2; exit 1; }
@@ -76,7 +76,7 @@ import json, sys
 version, abi, url, checksum, ts, path = sys.argv[1:]
 entry = {
     "version": version,
-    "changelog": f"See https://github.com/mitch/jellyfin-anime-filler-skipper/releases/tag/v{version}",
+    "changelog": f"See https://github.com/mpash/jellyfin-anime-filler-skipper/releases/tag/v{version}",
     "targetAbi": abi,
     "sourceUrl": url,
     "checksum": checksum,
