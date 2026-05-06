@@ -1,0 +1,11 @@
+bin/
+obj/
+*.user
+*.suo
+*.cache
+.vs/
+.idea/
+*.DotSettings.user
+.vscode/settings.json
+publish/
+release/
