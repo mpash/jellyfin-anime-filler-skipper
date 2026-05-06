@@ -12,6 +12,9 @@ jobs:
   release:
     name: Build Release & Publish
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      checksum: ${{ steps.checksum.outputs.md5 }}
 
     steps:
       - uses: actions/checkout@v4
@@ -20,14 +23,12 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      # ── extract metadata ──────────────────────────────
       - name: Parse version
         id: version
         run: |
           VERSION=$(grep -oPm1 '<Version>\K[^<]+' Jellyfin.Plugin.AnimeFillerSkipper/Jellyfin.Plugin.AnimeFillerSkipper.csproj)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      # ── build ─────────────────────────────────────────
       - name: Restore
         run: dotnet restore
 
@@ -40,7 +41,6 @@ jobs:
       - name: Publish
         run: dotnet publish Jellyfin.Plugin.AnimeFillerSkipper/Jellyfin.Plugin.AnimeFillerSkipper.csproj --no-build --configuration Release -o publish
 
-      # ── package ───────────────────────────────────────
       - name: Create release zip
         run: |
           mkdir -p release
@@ -54,7 +54,6 @@ jobs:
           CHECKSUM=$(md5sum release/jellyfin-anime-filler-skipper_${{ steps.version.outputs.version }}.zip | cut -d' ' -f1)
           echo "md5=$CHECKSUM" >> "$GITHUB_OUTPUT"
 
-      # ── create GitHub Release ─────────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -74,40 +73,20 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Parse version from tag
-        id: version
-        run: |
-          VERSION=$(grep -oPm1 '<Version>\K[^<]+' Jellyfin.Plugin.AnimeFillerSkipper/Jellyfin.Plugin.AnimeFillerSkipper.csproj)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Download release zip
-        run: |
-          TAG="${{ github.ref_name }}"
-          ZIP="jellyfin-anime-filler-skipper_${{ steps.version.outputs.version }}.zip"
-          curl -sSfL -o "$ZIP" \
-            "https://github.com/${{ github.repository }}/releases/download/${TAG}/${ZIP}"
-
-      - name: Compute checksum
-        id: checksum
-        run: |
-          ZIP="jellyfin-anime-filler-skipper_${{ steps.version.outputs.version }}.zip"
-          CHECKSUM=$(md5sum "$ZIP" | cut -d' ' -f1)
-          echo "md5=$CHECKSUM" >> "$GITHUB_OUTPUT"
-
       - name: Update manifest.json
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
+          VERSION="${{ needs.release.outputs.version }}"
+          CHECKSUM="${{ needs.release.outputs.checksum }}"
           TAG="${{ github.ref_name }}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          REPO="${{ github.repository }}"
+          DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/jellyfin-anime-filler-skipper_${VERSION}.zip"
+
           VERSION_CHECK=$(python3 -c "import json; m=json.load(open('manifest.json')); print(any(v['version']=='$VERSION' for v in m[0]['versions']))")
           if [ "$VERSION_CHECK" = "True" ]; then
             echo "Version $VERSION already in manifest, skipping update"
             exit 0
           fi
-
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          CHECKSUM="${{ steps.checksum.outputs.md5 }}"
-          REPO="${{ github.repository }}"
-          DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/jellyfin-anime-filler-skipper_${VERSION}.zip"
 
           python3 << PYEOF
           import json, os
