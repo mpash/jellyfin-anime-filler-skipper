@@ -23,6 +23,10 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Parse version
         id: version
         run: |
@@ -40,6 +44,11 @@ jobs:
 
       - name: Publish
         run: dotnet publish Jellyfin.Plugin.AnimeFillerSkipper/Jellyfin.Plugin.AnimeFillerSkipper.csproj --no-build --configuration Release -o publish
+
+      - name: Setup Font Awesome Pro
+        env:
+          FORTAWESOME_TOKEN: ${{ secrets.FORTAWESOME_TOKEN }}
+        run: scripts/setup-fontawesome.sh
 
       - name: Create release zip
         run: |

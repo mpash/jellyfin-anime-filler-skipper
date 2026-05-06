@@ -1,4 +1,4 @@
-.PHONY: build test publish install clean restore manifest release
+.PHONY: build test publish install clean restore manifest release fontawesome
 
 PROJECT = Jellyfin.Plugin.AnimeFillerSkipper/Jellyfin.Plugin.AnimeFillerSkipper.csproj
 TEST_PROJECT = tests/Jellyfin.Plugin.AnimeFillerSkipper.Tests/Jellyfin.Plugin.AnimeFillerSkipper.Tests.csproj
@@ -9,6 +9,7 @@ DLL = $(PLUGIN_NAME).dll
 HTMLPACK = HtmlAgilityPack.dll
 VERSION ?= $$(grep -oPm1 '<Version>\K[^<]+' $(PROJECT) || echo 1.0.0.0)
 JELLYFIN_PLUGIN_DIR ?= $(HOME)/.local/share/jellyfin/plugins/$(PLUGIN_NAME)
+FA_DIR = docs/fontawesome
 
 build:
 	dotnet build $(PROJECT)
@@ -27,6 +28,7 @@ install: publish
 	@echo "Restart Jellyfin to load the plugin."
 
 release: publish
+	-$(MAKE) fontawesome
 	scripts/generate-manifest.sh
 	@echo ""
 	@echo "Release files ready in $(RELEASE_DIR)/"
@@ -35,6 +37,9 @@ release: publish
 manifest: release
 	@echo "manifest.json is ready. Host this file:"
 	@echo "  https://raw.githubusercontent.com/OWNER/jellyfin-anime-filler-skipper/main/manifest.json"
+
+fontawesome:
+	scripts/setup-fontawesome.sh
 
 clean:
 	dotnet clean $(PROJECT) -c Release
