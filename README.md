@@ -90,7 +90,6 @@ make install JELLYFIN_PLUGIN_DIR=/var/lib/jellyfin/plugins/AnimeFillerSkipper
 ### Prerequisites
 
 - [.NET SDK 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [Node.js](https://nodejs.org) (for Font Awesome Pro in docs)
 
 ### Setup
 
@@ -110,28 +109,18 @@ make publish     # publish for manual install
 
 ### GitHub Pages docs
 
-The project site at `mpash.github.io/jellyfin-anime-filler-skipper` is built from `docs/`. To develop locally with Font Awesome Pro icons:
+The project site at `mpash.github.io/jellyfin-anime-filler-skipper` is built from `docs/`. Open locally:
 
 ```bash
-export FORTAWESOME_TOKEN="your-font-awesome-token"
-make fontawesome
 open docs/index.html
 ```
 
-If you don't have a Font Awesome Pro token, the docs still work — icons simply won't render.
+Icons use Font Awesome Free (CDN). No setup required.
 
 ### CI/CD
 
 - **CI** (`.github/workflows/ci.yml`) — Builds + tests on every push and PR to `main`
-- **Release** (`.github/workflows/release.yml`) — Triggered by version tags (`v*`). Builds, tests, creates a GitHub Release with the plugin zip, and updates `manifest.json`. Font Awesome Pro is included in the release build if `FORTAWESOME_TOKEN` is set as a [GitHub Secret](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions).
-
-### Adding Font Awesome Pro to CI
-
-1. Go to repo **Settings → Secrets and variables → Actions**
-2. Add a new repository secret named `FORTAWESOME_TOKEN`
-3. Paste your Font Awesome Pro token as the value
-
-The release workflow will automatically pick it up. The token is never logged or exposed in build output.
+- **Release** (`.github/workflows/release.yml`) — Triggered by version tags (`v*`). Builds, tests, creates a GitHub Release with the plugin zip, and updates `manifest.json`.
 
 ### Project structure
 
