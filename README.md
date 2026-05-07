@@ -28,6 +28,22 @@ cp HtmlAgilityPack.dll <jellyfin-data>/plugins/AnimeFillerSkipper/
 
 Restart Jellyfin.
 
+#### Verify download integrity
+
+Each release zip carries an MD5 checksum for integrity verification. Before extracting, compare:
+
+```bash
+# macOS
+md5 -q jellyfin-anime-filler-skipper_1.0.0.0.zip
+
+# Linux
+md5sum jellyfin-anime-filler-skipper_1.0.0.0.zip
+
+# Compare against the checksum listed on the releases page or in manifest.json
+```
+
+The expected checksums are published on the [releases page](https://mpash.github.io/jellyfin-anime-filler-skipper/#releases) and in [manifest.json](manifest.json).
+
 ## Features
 
 - **Automatic filler detection** — Scheduled task scans your anime libraries, maps each series to its animefillerlist.com page, and caches filler/mixed-canon episode numbers

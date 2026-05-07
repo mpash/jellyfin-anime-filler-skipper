@@ -299,6 +299,37 @@
         .release-row .rel-asset:hover { background: #224a35; }
         .release-row .rel-asset .size { font-weight: 400; color: var(--muted); }
 
+        .rel-checksum {
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, monospace;
+        }
+
+        .rel-checksum code {
+            color: var(--orange);
+            background: rgba(210,153,29,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            word-break: break-all;
+        }
+
+        .rel-checksum .copy-hash {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 2px 4px;
+            white-space: nowrap;
+        }
+
+        .rel-checksum .copy-hash:hover { color: var(--accent); }
+
         .release-loading {
             text-align: center;
             color: var(--muted);
@@ -548,12 +579,24 @@ function copyRepo() {
 async function loadReleases() {
     const container = document.getElementById('releases');
     try {
-        const res = await fetch('https://api.github.com/repos/mpash/jellyfin-anime-filler-skipper/releases?per_page=10');
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const releases = await res.json();
+        const [relRes, manifestRes] = await Promise.all([
+            fetch('https://api.github.com/repos/mpash/jellyfin-anime-filler-skipper/releases?per_page=10'),
+            fetch('https://raw.githubusercontent.com/mpash/jellyfin-anime-filler-skipper/main/manifest.json')
+        ]);
+
+        if (!relRes.ok) throw new Error('HTTP ' + relRes.status);
+        const releases = await relRes.json();
         if (!releases.length) {
             container.innerHTML = '<div class="release-loading">No releases yet.</div>';
             return;
+        }
+
+        const checksums = {};
+        if (manifestRes.ok) {
+            const manifest = await manifestRes.json();
+            for (const v of (manifest[0]?.versions || [])) {
+                checksums[v.version] = { checksum: v.checksum, targetAbi: v.targetAbi };
+            }
         }
 
         const formatSize = (bytes) => bytes < 1024 ? bytes + ' B'
@@ -564,25 +607,51 @@ async function loadReleases() {
             year: 'numeric', month: 'short', day: 'numeric'
         });
 
-        container.innerHTML = releases.map(r => `
+        container.innerHTML = releases.map(r => {
+            const info = checksums['1.0.0.0'] || {};
+            const hash = info.checksum || '—';
+
+            return `
             <div class="release-row">
                 <div>
                     <div class="rel-version">${r.tag_name}</div>
                     <div class="rel-date">${formatDate(r.created_at)}</div>
                 </div>
-                <div class="rel-assets">
-                    ${r.assets.map(a => `
-                        <a class="rel-asset" href="${a.browser_download_url}">
-                            <i class="fa-solid fa-download"></i> ${a.name}
-                            <span class="size">${formatSize(a.size)}</span>
-                        </a>
-                    `).join('')}
+                <div>
+                    <div class="rel-assets">
+                        ${r.assets.map(a => `
+                            <a class="rel-asset" href="${a.browser_download_url}">
+                                <i class="fa-solid fa-download"></i> ${a.name}
+                                <span class="size">${formatSize(a.size)}</span>
+                            </a>
+                        `).join('')}
+                    </div>
+                    ${hash !== '—' ? `
+                    <div class="rel-checksum">
+                        <i class="fa-solid fa-shield-halved"></i> MD5
+                        <code id="hash-${r.id}">${hash}</code>
+                        <button class="copy-hash" onclick="copyHash('${r.id}', '${hash}')" title="Copy checksum">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>` : ''}
                 </div>
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
     } catch (e) {
         container.innerHTML = '<div class="release-error">Failed to load releases. <a href="https://github.com/mpash/jellyfin-anime-filler-skipper/releases" style="color:var(--accent)">View on GitHub</a></div>';
     }
+}
+
+function copyHash(id, hash) {
+    navigator.clipboard.writeText(hash).then(() => {
+        const toast = document.getElementById('toast');
+        toast.textContent = 'Checksum copied!';
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.textContent = 'Copied!';
+        }, 1800);
+    });
 }
 
 loadReleases();
