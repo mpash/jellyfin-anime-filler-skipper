@@ -28,6 +28,7 @@ install: publish
 
 release: publish
 	scripts/generate-manifest.sh
+	cp manifest.json docs/manifest.json
 	@echo ""
 	@echo "Release files ready in $(RELEASE_DIR)/"
 	@echo "Manifest updated at manifest.json"
