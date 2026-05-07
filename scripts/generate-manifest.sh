@@ -12,7 +12,7 @@ SCRIPTS_DIR="$ROOT/scripts"
 OWNER="mpash"
 GUID="a8f1c3e4-5d6b-4a2e-9f1c-7e8d3a5b6c2f"
 CATEGORY="General"
-TARGET_ABI="10.11.8.0"
+TARGET_ABI="10.11.0.0"
 DOWNLOAD_BASE="${DOWNLOAD_BASE:-https://github.com/mpash/jellyfin-anime-filler-skipper/releases/download}"
 
 # ── helpers ─────────────────────────────────────────────

@@ -97,7 +97,7 @@ jobs:
           entry = {
               "version": os.environ["VERSION"],
               "changelog": f"See https://github.com/{os.environ['REPO']}/releases/tag/{os.environ['TAG']}",
-              "targetAbi": "10.11.8.0",
+              "targetAbi": "10.11.0.0",
               "sourceUrl": os.environ["DOWNLOAD_URL"],
               "checksum": os.environ["CHECKSUM"],
               "timestamp": os.environ["TIMESTAMP"]
