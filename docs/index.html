@@ -331,6 +331,24 @@
 
         .rel-checksum .copy-hash:hover { color: var(--accent); }
 
+        .wip-banner {
+            background: linear-gradient(135deg, #3d1c00, #5c2a00);
+            border-bottom: 1px solid #8b5e00;
+            color: #ffb84d;
+            text-align: center;
+            padding: 10px 24px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .wip-banner i {
+            margin-right: 6px;
+        }
+
+        .wip-banner strong {
+            color: #fff;
+        }
+
         .release-loading {
             text-align: center;
             color: var(--muted);
@@ -385,6 +403,11 @@
     </style>
 </head>
 <body>
+
+<div class="wip-banner">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <strong>Work in progress</strong> — This plugin is under active development and has limited testing. Download and use at your own risk. A more stable release is coming soon.
+</div>
 
 <div class="copy-toast" id="toast">Copied!</div>
 

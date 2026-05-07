@@ -1,5 +1,7 @@
 # <img src="docs/anime-skip-plugin-icon.png" width="48" align="left" alt=""> Jellyfin Anime Filler Skipper
 
+> ⚠️ **Work in progress.** This plugin is under active development and has not been thoroughly tested. Download and use at your own risk. A stable, tested release is in development.
+
 A Jellyfin plugin that identifies filler episodes in anime series using data from [animefillerlist.com](https://www.animefillerlist.com) and exposes them as skippable media segments.
 
 ## Requirements
