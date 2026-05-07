@@ -1,4 +1,4 @@
-.PHONY: build test publish install clean restore manifest release
+.PHONY: build test publish install clean restore manifest release bump-patch bump-minor bump-major
 
 PROJECT = Jellyfin.Plugin.AnimeFillerSkipper/Jellyfin.Plugin.AnimeFillerSkipper.csproj
 TEST_PROJECT = tests/Jellyfin.Plugin.AnimeFillerSkipper.Tests/Jellyfin.Plugin.AnimeFillerSkipper.Tests.csproj
@@ -43,3 +43,15 @@ clean:
 
 restore:
 	dotnet restore
+
+# ── version bumping ──────────────────────────────────────
+# Version format: major.minor.patch.build (e.g. 1.0.0.0)
+
+bump-patch:
+	@scripts/bump-version.sh 2
+
+bump-minor:
+	@scripts/bump-version.sh 1
+
+bump-major:
+	@scripts/bump-version.sh 0
