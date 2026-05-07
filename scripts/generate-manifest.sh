@@ -34,7 +34,7 @@ fi
 # ── build zip ───────────────────────────────────────────
 mkdir -p "$RELEASE_DIR"
 
-RELEASE_TAG="v${VERSION}"
+RELEASE_TAG="${RELEASE_TAG:-v${VERSION}}"
 ZIP_NAME="jellyfin-anime-filler-skipper_${VERSION}.zip"
 ZIP_PATH="$RELEASE_DIR/$ZIP_NAME"
 

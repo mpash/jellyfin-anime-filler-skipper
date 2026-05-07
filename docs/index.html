@@ -228,6 +228,91 @@
 
         .config-hint strong { color: var(--accent); }
 
+        .release-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .release-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            padding: 14px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .release-row:first-child {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .release-row .rel-version {
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .release-row:first-child .rel-version::after {
+            content: "latest";
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .release-row .rel-date {
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        .release-row .rel-assets {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .release-row .rel-asset {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: var(--radius);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            background: #1a3c2a;
+            color: var(--green);
+            transition: background 0.15s;
+        }
+
+        .release-row .rel-asset:hover { background: #224a35; }
+        .release-row .rel-asset .size { font-weight: 400; color: var(--muted); }
+
+        .release-loading {
+            text-align: center;
+            color: var(--muted);
+            padding: 24px;
+            font-size: 0.9rem;
+        }
+
+        .release-error {
+            text-align: center;
+            color: var(--red);
+            padding: 16px;
+            font-size: 0.85rem;
+        }
+
         footer {
             text-align: center;
             padding: 32px 24px;
@@ -422,6 +507,13 @@
 </section>
 
 <section>
+    <h2><i class="fa-solid fa-tag"></i> Releases</h2>
+    <div class="release-list" id="releases">
+        <div class="release-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading releases…</div>
+    </div>
+</section>
+
+<section>
     <h2><i class="fa-regular fa-folder-open"></i> Manual Install</h2>
     <p>If you prefer not to use the repository, download the latest release and extract to your plugin folder:</p>
     <div class="curl-block">mkdir -p ~/.local/share/jellyfin/plugins/AnimeFillerSkipper/
@@ -452,6 +544,48 @@ function copyRepo() {
         setTimeout(() => toast.classList.remove('show'), 1800);
     });
 }
+
+async function loadReleases() {
+    const container = document.getElementById('releases');
+    try {
+        const res = await fetch('https://api.github.com/repos/mpash/jellyfin-anime-filler-skipper/releases?per_page=10');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const releases = await res.json();
+        if (!releases.length) {
+            container.innerHTML = '<div class="release-loading">No releases yet.</div>';
+            return;
+        }
+
+        const formatSize = (bytes) => bytes < 1024 ? bytes + ' B'
+            : bytes < 1048576 ? (bytes / 1024).toFixed(1) + ' KB'
+            : (bytes / 1048576).toFixed(1) + ' MB';
+
+        const formatDate = (d) => new Date(d).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'short', day: 'numeric'
+        });
+
+        container.innerHTML = releases.map(r => `
+            <div class="release-row">
+                <div>
+                    <div class="rel-version">${r.tag_name}</div>
+                    <div class="rel-date">${formatDate(r.created_at)}</div>
+                </div>
+                <div class="rel-assets">
+                    ${r.assets.map(a => `
+                        <a class="rel-asset" href="${a.browser_download_url}">
+                            <i class="fa-solid fa-download"></i> ${a.name}
+                            <span class="size">${formatSize(a.size)}</span>
+                        </a>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        container.innerHTML = '<div class="release-error">Failed to load releases. <a href="https://github.com/mpash/jellyfin-anime-filler-skipper/releases" style="color:var(--accent)">View on GitHub</a></div>';
+    }
+}
+
+loadReleases();
 </script>
 
 </body>
