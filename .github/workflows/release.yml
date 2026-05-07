@@ -123,12 +123,12 @@ jobs:
 
       - name: Update manifest.json
         run: |
-          VERSION="${{ steps.meta.outputs.version }}"
-          TAG="${{ steps.meta.outputs.tag }}"
-          CHECKSUM="${{ steps.checksum.outputs.md5 }}"
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          REPO="${{ github.repository }}"
-          DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/jellyfin-anime-filler-skipper_${VERSION}.zip"
+          export VERSION="${{ steps.meta.outputs.version }}"
+          export TAG="${{ github.ref_name }}"
+          export CHECKSUM="${{ steps.checksum.outputs.md5 }}"
+          export TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          export REPO="${{ github.repository }}"
+          export DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/jellyfin-anime-filler-skipper_${VERSION}.zip"
 
           VERSION_CHECK=$(python3 -c "import json; m=json.load(open('manifest.json')); print(any(v['version']=='$VERSION' for v in m[0]['versions']))")
           if [ "$VERSION_CHECK" = "True" ]; then
