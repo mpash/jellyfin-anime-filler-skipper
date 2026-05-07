@@ -18,11 +18,13 @@ namespace Jellyfin.Plugin.AnimeFillerSkipper.ScheduledTasks;
 
 public class UpdateFillerDataTask : IScheduledTask
 {
+    private const int DefaultCacheExpirationHours = 72;
+    private const int DefaultRequestDelayMs = 2000;
+
     private readonly ILibraryManager _libraryManager;
     private readonly IFillerDataService _fillerDataService;
     private readonly IAnimeFillerListClient _fillerListClient;
     private readonly ILogger<UpdateFillerDataTask> _logger;
-    private readonly PluginConfiguration _config;
 
     public string Name => "Update Anime Filler Data";
     public string Key => "AnimeFillerSkipperUpdate";
@@ -33,14 +35,12 @@ public class UpdateFillerDataTask : IScheduledTask
         ILibraryManager libraryManager,
         IFillerDataService fillerDataService,
         IAnimeFillerListClient fillerListClient,
-        ILogger<UpdateFillerDataTask> logger,
-        Plugin plugin)
+        ILogger<UpdateFillerDataTask> logger)
     {
         _libraryManager = libraryManager;
         _fillerDataService = fillerDataService;
         _fillerListClient = fillerListClient;
         _logger = logger;
-        _config = plugin.Configuration;
     }
 
     public IEnumerable<TaskTriggerInfo> GetDefaultTriggers()
@@ -58,12 +58,12 @@ public class UpdateFillerDataTask : IScheduledTask
 
     public async Task ExecuteAsync(IProgress<double> progress, CancellationToken cancellationToken)
     {
-        var cacheExpiration = TimeSpan.FromHours(_config.CacheExpirationHours);
-        var requestDelay = TimeSpan.FromMilliseconds(_config.RequestDelayMs);
+        var cacheExpiration = TimeSpan.FromHours(DefaultCacheExpirationHours);
+        var requestDelay = TimeSpan.FromMilliseconds(DefaultRequestDelayMs);
 
         _logger.LogInformation(
             "Starting anime filler data update (cache: {CacheHours}h, delay: {DelayMs}ms)",
-            _config.CacheExpirationHours, _config.RequestDelayMs);
+            DefaultCacheExpirationHours, DefaultRequestDelayMs);
 
         var seriesList = _libraryManager.GetItemList(new InternalItemsQuery
         {
