@@ -4,13 +4,17 @@ on:
   push:
     tags:
       - 'v*'
+  release:
+    types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  build-and-publish:
     name: Build Release & Publish
+    if: github.event_name != 'release'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -65,7 +69,10 @@ jobs:
   update-manifest:
     name: Update manifest.json
     runs-on: ubuntu-latest
-    needs: release
+    needs: build-and-publish
+    if: |
+      always() &&
+      (needs.build-and-publish.result == 'success' || needs.build-and-publish.result == 'skipped')
 
     steps:
       - uses: actions/checkout@v4
@@ -73,11 +80,54 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Determine tag and version
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+          # Parse version from csproj on main
+          VERSION=$(grep -oPm1 '<Version>\K[^<]+' Jellyfin.Plugin.AnimeFillerSkipper/Jellyfin.Plugin.AnimeFillerSkipper.csproj)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Download release asset
+        run: |
+          TAG="${{ steps.meta.outputs.tag }}"
+          VERSION="${{ steps.meta.outputs.version }}"
+          ZIP="jellyfin-anime-filler-skipper_${VERSION}.zip"
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+
+          for i in $(seq 1 5); do
+            echo "Attempt $i: downloading $ZIP from $TAG"
+            if curl -sSfL -o "$ZIP" \
+              "https://github.com/${{ github.repository }}/releases/download/${TAG}/${ZIP}"; then
+              echo "Download succeeded"
+              break
+            fi
+            echo "Attempt $i failed, retrying in 5s..."
+            sleep 5
+          done
+
+      - name: Compute checksum
+        id: checksum
+        run: |
+          ZIP="${{ steps.meta.outputs.zip }}"
+          if [ ! -f "$ZIP" ]; then
+            echo "ERROR: Release zip not found. Cannot compute checksum." >&2
+            exit 1
+          fi
+          CHECKSUM=$(md5sum "$ZIP" | cut -d' ' -f1)
+          echo "md5=$CHECKSUM" >> "$GITHUB_OUTPUT"
+
       - name: Update manifest.json
         run: |
-          VERSION="${{ needs.release.outputs.version }}"
-          CHECKSUM="${{ needs.release.outputs.checksum }}"
-          TAG="${{ github.ref_name }}"
+          VERSION="${{ steps.meta.outputs.version }}"
+          TAG="${{ steps.meta.outputs.tag }}"
+          CHECKSUM="${{ steps.checksum.outputs.md5 }}"
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           REPO="${{ github.repository }}"
           DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/jellyfin-anime-filler-skipper_${VERSION}.zip"
@@ -119,5 +169,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add manifest.json
-          git commit -m "chore: update manifest for ${{ github.ref_name }} [skip ci]" || echo "No changes to commit"
+          git commit -m "chore: update manifest for ${{ steps.meta.outputs.tag }} [skip ci]" || echo "No changes to commit"
           git push origin HEAD:main

@@ -1,4 +1,4 @@
-# Jellyfin Anime Filler Skipper
+# <img src="docs/anime-skip-plugin-icon.png" width="48" align="left" alt=""> Jellyfin Anime Filler Skipper
 
 A Jellyfin plugin that identifies filler episodes in anime series using data from [animefillerlist.com](https://www.animefillerlist.com) and exposes them as skippable media segments.
 
