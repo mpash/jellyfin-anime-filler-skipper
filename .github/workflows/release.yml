@@ -99,27 +99,25 @@ jobs:
           TAG="${{ steps.meta.outputs.tag }}"
           VERSION="${{ steps.meta.outputs.version }}"
           ZIP="jellyfin-anime-filler-skipper_${VERSION}.zip"
-          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
 
           for i in $(seq 1 5); do
             echo "Attempt $i: downloading $ZIP from $TAG"
             if curl -sSfL -o "$ZIP" \
               "https://github.com/${{ github.repository }}/releases/download/${TAG}/${ZIP}"; then
               echo "Download succeeded"
-              break
+              exit 0
             fi
             echo "Attempt $i failed, retrying in 5s..."
             sleep 5
           done
+          echo "ERROR: Could not download $ZIP after 5 attempts" >&2
+          exit 1
 
       - name: Compute checksum
         id: checksum
         run: |
-          ZIP="${{ steps.meta.outputs.zip }}"
-          if [ ! -f "$ZIP" ]; then
-            echo "ERROR: Release zip not found. Cannot compute checksum." >&2
-            exit 1
-          fi
+          VERSION="${{ steps.meta.outputs.version }}"
+          ZIP="jellyfin-anime-filler-skipper_${VERSION}.zip"
           CHECKSUM=$(md5sum "$ZIP" | cut -d' ' -f1)
           echo "md5=$CHECKSUM" >> "$GITHUB_OUTPUT"
 
