@@ -26,8 +26,11 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
         {
             new PluginPageInfo
             {
-                Name = Name,
+                Name = "AnimeFillerSkipper",
                 DisplayName = Name,
+                EnableInMainMenu = true,
+                MenuSection = "server",
+                MenuIcon = "skip_next",
                 EmbeddedResourcePath = string.Format(
                     CultureInfo.InvariantCulture,
                     "{0}.Configuration.configPage.html",
