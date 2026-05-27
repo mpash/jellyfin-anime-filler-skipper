@@ -8,6 +8,14 @@
     "overview": "Skip anime filler episodes automatically. Uses animefillerlist.com to detect filler/mixed-canon episodes and integrates with Jellyfin's media segment system so you can skip them with one click.",
     "versions": [
       {
+        "version": "1.0.5.0",
+        "changelog": "See https://github.com/mpash/jellyfin-anime-filler-skipper/releases/tag/v1.0.5.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/mpash/jellyfin-anime-filler-skipper/releases/download/v1.0.5.0/jellyfin-anime-filler-skipper_1.0.5.0.zip",
+        "checksum": "4c3fbc7b9038eefd64b0ca5ae555987d",
+        "timestamp": "2026-05-27T21:04:53Z"
+      },
+      {
         "version": "1.0.4.0",
         "changelog": "See https://github.com/mpash/jellyfin-anime-filler-skipper/releases/tag/v1.0.4.0",
         "targetAbi": "10.11.0.0",
