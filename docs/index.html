@@ -632,7 +632,10 @@ async function loadReleases() {
         });
 
         container.innerHTML = releases.map(r => {
-            const info = checksums['1.0.0.0'] || {};
+            const assetVersions = r.assets
+                .map(a => a.name.match(/_(\d+\.\d+\.\d+\.\d+)\.zip$/)?.[1])
+                .filter(Boolean);
+            const info = assetVersions.map(v => checksums[v]).find(Boolean) || {};
             const hash = info.checksum || '—';
 
             return `

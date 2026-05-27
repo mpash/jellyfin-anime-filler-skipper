@@ -83,11 +83,13 @@ make install JELLYFIN_PLUGIN_DIR=/var/lib/jellyfin/plugins/AnimeFillerSkipper
 
 ### Releasing a new version
 
-1. Update `<Version>` in `Jellyfin.Plugin.AnimeFillerSkipper.csproj`
-2. Update `TARGET_ABI` in `scripts/generate-manifest.sh` if jellyfin package versions changed
-3. Run `make release`
-4. Commit and push the updated `manifest.json`
-5. Create a GitHub release for `v<version>` and upload `release/jellyfin-anime-filler-skipper_<version>.zip`
+1. Update `<Version>`, `<AssemblyVersion>`, and `<FileVersion>` in `Jellyfin.Plugin.AnimeFillerSkipper.csproj`
+2. Update `TARGET_ABI` in `scripts/generate-manifest.sh` and `.github/workflows/release.yml` if Jellyfin ABI changes
+3. Commit the version change to `main`
+4. Create and push the matching tag: `git tag v<version> && git push origin v<version>`
+5. The release workflow builds the zip, creates/updates the GitHub release, and upserts `manifest.json`
+
+Release tags must match the plugin version exactly, e.g. project version `1.0.2.0` uses tag `v1.0.2.0`.
 
 ## How it works
 

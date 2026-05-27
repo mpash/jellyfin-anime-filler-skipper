@@ -19,7 +19,7 @@ DOWNLOAD_BASE="${DOWNLOAD_BASE:-https://github.com/mpash/jellyfin-anime-filler-s
 _die() { echo "ERROR: $*" >&2; exit 1; }
 
 # ── read version from csproj ────────────────────────────
-VERSION=$(_scripts/extract-version.sh 2>/dev/null || \
+VERSION=$("$SCRIPTS_DIR/extract-version.sh" 2>/dev/null || \
   grep -oPm1 '<Version>\K[^<]+' "$PROJECT" 2>/dev/null || \
   echo "1.0.0.0")
 
@@ -35,6 +35,9 @@ fi
 mkdir -p "$RELEASE_DIR"
 
 RELEASE_TAG="${RELEASE_TAG:-v${VERSION}}"
+if [ "$RELEASE_TAG" != "v${VERSION}" ]; then
+    _die "Release tag $RELEASE_TAG does not match project version $VERSION (expected v${VERSION})."
+fi
 ZIP_NAME="jellyfin-anime-filler-skipper_${VERSION}.zip"
 ZIP_PATH="$RELEASE_DIR/$ZIP_NAME"
 
@@ -43,40 +46,15 @@ rm -f "$ZIP_PATH"
 
 CHECKSUM=$(md5 -q "$ZIP_PATH" 2>/dev/null || md5sum "$ZIP_PATH" | cut -d' ' -f1)
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-SOURCE_URL="${DOWNLOAD_BASE}/${RELEASE_TAG}/${ZIP_NAME}"
+SOURCE_URL="${DOWNLOAD_BASE%/}/${RELEASE_TAG}/${ZIP_NAME}"
 
-# ── chomp trailing / on DOWNLOAD_BASE ───────────────────
-SOURCE_URL="${SOURCE_URL//\/\///}"  # fix double slash if any
-SOURCE_URL="${SOURCE_URL/https:\//https://}"
-
-# ── check if version already in manifest ────────────────
-if grep -q "\"version\": \"$VERSION\"" "$MANIFEST" 2>/dev/null; then
-    echo "Version $VERSION already in manifest.json. Skipping."
-else
-    # ── read existing manifest ──────────────────────────
-    if command -v jq &>/dev/null; then
-        NEW_ENTRY=$(jq -n \
-            --arg version "$VERSION" \
-            --arg changelog "See https://github.com/$OWNER/jellyfin-anime-filler-skipper/releases/tag/v${VERSION}" \
-            --arg targetAbi "$TARGET_ABI" \
-            --arg sourceUrl "$SOURCE_URL" \
-            --arg checksum "$CHECKSUM" \
-            --arg timestamp "$TIMESTAMP" \
-            '{version: $version, changelog: $changelog, targetAbi: $targetAbi, sourceUrl: $sourceUrl, checksum: $checksum, timestamp: $timestamp}')
-
-        TMPFILE=$(mktemp)
-        jq --argjson entry "$NEW_ENTRY" \
-            '.[0].versions = [$entry] + .[0].versions' \
-            "$MANIFEST" > "$TMPFILE"
-        mv "$TMPFILE" "$MANIFEST"
-    else
-        # ── jq not available; use python ────────────────
-        python3 - "$VERSION" "$TARGET_ABI" "$SOURCE_URL" "$CHECKSUM" "$TIMESTAMP" "$MANIFEST" <<'PYEOF'
+# ── upsert manifest entry ───────────────────────────────
+python3 - "$VERSION" "$TARGET_ABI" "$SOURCE_URL" "$CHECKSUM" "$TIMESTAMP" "$MANIFEST" "$OWNER" "$RELEASE_TAG" <<'PYEOF'
 import json, sys
-version, abi, url, checksum, ts, path = sys.argv[1:]
+version, abi, url, checksum, ts, path, owner, tag = sys.argv[1:]
 entry = {
     "version": version,
-    "changelog": f"See https://github.com/mpash/jellyfin-anime-filler-skipper/releases/tag/v{version}",
+    "changelog": f"See https://github.com/{owner}/jellyfin-anime-filler-skipper/releases/tag/{tag}",
     "targetAbi": abi,
     "sourceUrl": url,
     "checksum": checksum,
@@ -84,15 +62,23 @@ entry = {
 }
 with open(path) as f:
     manifest = json.load(f)
-manifest[0]["versions"].insert(0, entry)
+
+versions = manifest[0]["versions"]
+for index, current in enumerate(versions):
+    if current["version"] == version:
+        versions[index] = entry
+        break
+else:
+    versions.insert(0, entry)
+
+versions.sort(key=lambda item: [int(part) for part in item["version"].split(".")], reverse=True)
+
 with open(path, "w") as f:
     json.dump(manifest, f, indent=2)
     f.write("\n")
 PYEOF
-    fi
 
-    echo "Added version $VERSION to manifest.json"
-fi
+echo "Upserted version $VERSION in manifest.json"
 
 echo ""
 echo "── Release artifacts ──────────────────────────────────"

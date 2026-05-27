@@ -35,7 +35,7 @@ release: publish
 
 manifest: release
 	@echo "manifest.json is ready. Host this file:"
-	@echo "  https://raw.githubusercontent.com/OWNER/jellyfin-anime-filler-skipper/main/manifest.json"
+	@echo "  https://raw.githubusercontent.com/mpash/jellyfin-anime-filler-skipper/main/manifest.json"
 
 clean:
 	dotnet clean $(PROJECT) -c Release
