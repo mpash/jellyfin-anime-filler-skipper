@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tag New Release"
+  short_description: "Tag Jellyfin plugin releases with matching project versions."
+  default_prompt: "Tag a new release for this Jellyfin plugin."
