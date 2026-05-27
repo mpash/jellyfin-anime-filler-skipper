@@ -1,0 +1,194 @@
+<div id="AnimeFillerSkipperConfigPage" data-role="page" class="page type-interior pluginConfigurationPage">
+    <div data-role="content">
+        <div class="content-primary">
+            <h1>Anime Filler Skipper</h1>
+
+            <form id="AnimeFillerSkipperConfigForm">
+                <div class="verticalSection">
+                    <h2>Configuration</h2>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="AnimeFillerSkipperCacheExpirationHours">Cache expiration hours</label>
+                        <input is="emby-input" id="AnimeFillerSkipperCacheExpirationHours" type="number" min="1" step="1" required />
+                    </div>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" id="AnimeFillerSkipperTreatMixedAsFiller" type="checkbox" />
+                        <span>Treat mixed canon/filler episodes as filler</span>
+                    </label>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="AnimeFillerSkipperRequestDelayMs">Request delay ms</label>
+                        <input is="emby-input" id="AnimeFillerSkipperRequestDelayMs" type="number" min="0" step="100" required />
+                    </div>
+
+                    <button is="emby-button" type="submit" class="raised button-submit">
+                        <span>Save</span>
+                    </button>
+
+                    <p id="AnimeFillerSkipperConfigStatus"></p>
+                </div>
+            </form>
+
+            <form id="AnimeFillerSkipperSegmentForm">
+                <div class="verticalSection">
+                    <h2>Filler skip button</h2>
+                    <p>Enable Jellyfin Web skip prompts for filler segments.</p>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="AnimeFillerSkipperAction">Action</label>
+                        <select is="emby-select" id="AnimeFillerSkipperAction" label="Action">
+                            <option value="AskToSkip">Ask to skip</option>
+                            <option value="Skip">Skip automatically</option>
+                            <option value="None">None</option>
+                        </select>
+                    </div>
+
+                    <div id="AnimeFillerSkipperUsers" class="checkboxList"></div>
+
+                    <div>
+                        <button is="emby-button" type="button" id="AnimeFillerSkipperSelectAll" class="raised button-submit">
+                            <span>Select all</span>
+                        </button>
+                        <button is="emby-button" type="button" id="AnimeFillerSkipperApply" class="raised button-submit">
+                            <span>Apply to selected users</span>
+                        </button>
+                    </div>
+
+                    <p id="AnimeFillerSkipperStatus"></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function () {
+            const pluginId = 'a8f1c3e4-5d6b-4a2e-9f1c-7e8d3a5b6c2f';
+            const page = document.querySelector('#AnimeFillerSkipperConfigPage');
+            const configStatus = page.querySelector('#AnimeFillerSkipperConfigStatus');
+            const usersContainer = page.querySelector('#AnimeFillerSkipperUsers');
+            const status = page.querySelector('#AnimeFillerSkipperStatus');
+            const actionSelect = page.querySelector('#AnimeFillerSkipperAction');
+
+            function setConfigStatus(message) {
+                configStatus.textContent = message || '';
+            }
+
+            function setStatus(message) {
+                status.textContent = message || '';
+            }
+
+            function getUrl(path) {
+                return ApiClient.getUrl(path);
+            }
+
+            function loadConfig() {
+                ApiClient.ajax({
+                    type: 'GET',
+                    url: getUrl('Plugins/' + pluginId + '/Configuration')
+                }).then(function (config) {
+                    page.querySelector('#AnimeFillerSkipperCacheExpirationHours').value = config.CacheExpirationHours || 72;
+                    page.querySelector('#AnimeFillerSkipperTreatMixedAsFiller').checked = config.TreatMixedAsFiller !== false;
+                    page.querySelector('#AnimeFillerSkipperRequestDelayMs').value = config.RequestDelayMs || 2000;
+                    setConfigStatus('');
+                }, function () {
+                    setConfigStatus('Unable to load configuration.');
+                });
+            }
+
+            function loadUsers() {
+                setStatus('Loading users...');
+
+                ApiClient.ajax({
+                    type: 'GET',
+                    url: getUrl('AnimeFillerSkipper/SegmentPreferences/Unknown')
+                }).then(function (result) {
+                    usersContainer.innerHTML = '';
+
+                    result.Users.forEach(function (user) {
+                        const label = document.createElement('label');
+                        label.className = 'checkboxContainer';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'chkAnimeFillerSkipperUser';
+                        checkbox.value = user.Id;
+
+                        const span = document.createElement('span');
+                        span.textContent = user.Name + ' (' + user.Action + ')';
+
+                        label.appendChild(checkbox);
+                        label.appendChild(span);
+                        usersContainer.appendChild(label);
+                    });
+
+                    setStatus('');
+                }, function () {
+                    setStatus('Unable to load users.');
+                });
+            }
+
+            page.querySelector('#AnimeFillerSkipperSelectAll').addEventListener('click', function () {
+                page.querySelectorAll('.chkAnimeFillerSkipperUser').forEach(function (checkbox) {
+                    checkbox.checked = true;
+                });
+            });
+
+            page.querySelector('#AnimeFillerSkipperApply').addEventListener('click', function () {
+                const userIds = Array.prototype.map.call(
+                    page.querySelectorAll('.chkAnimeFillerSkipperUser:checked'),
+                    function (checkbox) {
+                        return checkbox.value;
+                    });
+
+                if (!userIds.length) {
+                    setStatus('Select at least one user.');
+                    return;
+                }
+
+                setStatus('Saving...');
+
+                ApiClient.ajax({
+                    type: 'POST',
+                    url: getUrl('AnimeFillerSkipper/SegmentPreferences/Unknown'),
+                    data: JSON.stringify({
+                        UserIds: userIds,
+                        Action: actionSelect.value
+                    }),
+                    contentType: 'application/json'
+                }).then(function (result) {
+                    setStatus('Updated ' + result.UpdatedCount + ' user(s).');
+                    loadUsers();
+                }, function () {
+                    setStatus('Unable to save segment preferences.');
+                });
+            });
+
+            page.querySelector('#AnimeFillerSkipperConfigForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                setConfigStatus('Saving...');
+
+                ApiClient.ajax({
+                    type: 'POST',
+                    url: getUrl('Plugins/' + pluginId + '/Configuration'),
+                    data: JSON.stringify({
+                        CacheExpirationHours: parseInt(page.querySelector('#AnimeFillerSkipperCacheExpirationHours').value, 10),
+                        TreatMixedAsFiller: page.querySelector('#AnimeFillerSkipperTreatMixedAsFiller').checked,
+                        RequestDelayMs: parseInt(page.querySelector('#AnimeFillerSkipperRequestDelayMs').value, 10)
+                    }),
+                    contentType: 'application/json'
+                }).then(function () {
+                    Dashboard.processPluginConfigurationUpdateResult();
+                    setConfigStatus('Saved.');
+                }, function () {
+                    setConfigStatus('Unable to save configuration.');
+                });
+            });
+
+            page.addEventListener('pageshow', function () {
+                loadConfig();
+                loadUsers();
+            });
+        })();
+    </script>
+</div>

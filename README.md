@@ -58,13 +58,7 @@ The expected checksums are published on the [releases page](https://mpash.github
 
 1. After installation, run the **"Update Anime Filler Data"** scheduled task (Dashboard → Scheduled Tasks)
 2. When a filler episode plays, the segment is available via the Jellyfin segments API
-3. To enable skip prompts for `Unknown` segments, set the user preference `segmentTypeAction__Unknown` to `AskToSkip` or `Skip`:
-
-```bash
-curl -X POST "http://localhost:8096/DisplayPreferences/usersettings" \
-  -H "X-Emby-Authorization: ..." \
-  -d '{"segmentTypeAction__Unknown": "AskToSkip"}'
-```
+3. To enable skip prompts, go to **Dashboard → Plugins → Anime Filler Skipper → Settings**, select users, and apply **Ask to skip** or **Skip automatically**
 
 ## Development
 

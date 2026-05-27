@@ -457,7 +457,7 @@
         <li>
             <div>
                 <strong>Enable segment skipping</strong>
-                <span>Configure the action for Unknown segments (see below)</span>
+                <span>Open the plugin settings, select users, and apply "Ask to skip" or "Skip automatically"</span>
             </div>
         </li>
     </ol>
@@ -524,21 +524,14 @@
 </section>
 
 <section>
-    <h2><i class="fa-solid fa-terminal"></i> Enable the Skip Button</h2>
+    <h2><i class="fa-solid fa-forward"></i> Enable the Skip Button</h2>
     <p>
         Jellyfin's web client only auto-prompts for <strong>Intro</strong> and <strong>Outro</strong>
-        segments by default. Filler episodes use segment type <strong>Unknown</strong>. You must configure
-        the action for Unknown segments.
+        segments by default. Filler episodes use segment type <strong>Unknown</strong>, so the plugin
+        includes a settings page that applies the matching Jellyfin user preference for you.
     </p>
-    <p>Run this API call against your Jellyfin server (replace the token):</p>
-
-    <div class="curl-block"><span class="key">curl</span> -X POST <span class="url">"http://localhost:8096/DisplayPreferences/usersettings"</span> \
-  -H <span class="placeholder">"X-Emby-Authorization: YOUR_API_KEY"</span> \
-  -H <span class="key">"Content-Type: application/json"</span> \
-  -d <span class="placeholder">'{"segmentTypeAction__Unknown":"AskToSkip"}'</span></div>
-
     <div class="config-hint">
-        <strong>Alternative:</strong> If your Jellyfin client has a Display Preferences UI for segment actions, set <code>segmentTypeAction__Unknown</code> to <strong>AskToSkip</strong> or <strong>Skip</strong>.
+        <strong>Setup:</strong> Go to <strong>Dashboard → Plugins → Anime Filler Skipper → Settings</strong>, select users, then apply <strong>Ask to skip</strong> or <strong>Skip automatically</strong>.
     </div>
 </section>
 

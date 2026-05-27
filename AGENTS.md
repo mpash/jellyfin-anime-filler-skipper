@@ -43,7 +43,7 @@ tests/Jellyfin.Plugin.AnimeFillerSkipper.Tests/  # xUnit + Moq
 6. If filler → `MediaSegmentDto` with Type=Unknown, StartTicks=0, EndTicks=RunTimeTicks
 
 ## Segment skip button
-Web client only auto-prompts for Intro/Outro by default. Filler segments use `MediaSegmentType.Unknown`. Users must set `segmentTypeAction__Unknown` to `AskToSkip` or `Skip` via DisplayPreferences API or settings.
+Web client only auto-prompts for Intro/Outro by default. Filler segments use `MediaSegmentType.Unknown`. Admins enable prompts from plugin settings, which writes `segmentTypeAction__Unknown` to `AskToSkip` or `Skip`.
 
 ## Slug generation
 `SlugHelper.GenerateSlug`: lowercase, regex strip `[^a-z0-9\s-]`, spaces→hyphens, collapse consecutive hyphens, trim hyphens from ends.

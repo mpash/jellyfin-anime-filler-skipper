@@ -13,5 +13,6 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
     {
         serviceCollection.AddSingleton<IFillerDataService, FillerDataService>();
         serviceCollection.AddSingleton<IAnimeFillerListClient, AnimeFillerListClient>();
+        serviceCollection.AddSingleton<IUserSegmentPreferenceService, UserSegmentPreferenceService>();
     }
 }

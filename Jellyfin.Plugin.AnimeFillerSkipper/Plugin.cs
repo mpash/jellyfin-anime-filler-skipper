@@ -1,12 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
+using MediaBrowser.Model.Plugins;
 using MediaBrowser.Model.Serialization;
 using Jellyfin.Plugin.AnimeFillerSkipper.Configuration;
 
 namespace Jellyfin.Plugin.AnimeFillerSkipper;
 
-public class Plugin : BasePlugin<PluginConfiguration>
+public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 {
     public override string Name => "Anime Filler Skipper";
 
@@ -15,5 +18,21 @@ public class Plugin : BasePlugin<PluginConfiguration>
     public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
         : base(applicationPaths, xmlSerializer)
     {
+    }
+
+    public IEnumerable<PluginPageInfo> GetPages()
+    {
+        return new[]
+        {
+            new PluginPageInfo
+            {
+                Name = Name,
+                DisplayName = Name,
+                EmbeddedResourcePath = string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0}.Configuration.configPage.html",
+                    GetType().Namespace)
+            }
+        };
     }
 }
