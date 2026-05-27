@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Jellyfin.Database.Implementations.Entities;
 using Jellyfin.Plugin.AnimeFillerSkipper.Models;
 using Jellyfin.Plugin.AnimeFillerSkipper.Services;
@@ -114,6 +115,30 @@ public class UserSegmentPreferenceServiceTests
         Assert.Equal(UserSegmentPreferenceActions.None, result.Users[0].Action);
     }
 
+    [Fact]
+    public void GetUnknownSegmentActionStatus_FallsBackToUserIds()
+    {
+        var user = CreateUser("alice");
+        var userManager = CreateUserManager();
+        userManager.Setup(m => m.UsersIds).Returns(new[] { user.Id });
+        userManager.Setup(m => m.GetUserById(user.Id)).Returns(user);
+
+        var displayPreferencesManager = new Mock<IDisplayPreferencesManager>();
+        displayPreferencesManager
+            .Setup(m => m.ListCustomItemDisplayPreferences(
+                user.Id,
+                It.IsAny<Guid>(),
+                UserSegmentPreferenceService.ClientId))
+            .Returns(new Dictionary<string, string?>());
+
+        var service = new UserSegmentPreferenceService(userManager.Object, displayPreferencesManager.Object);
+
+        var result = service.GetUnknownSegmentActionStatus();
+
+        Assert.Single(result.Users);
+        Assert.Equal("alice", result.Users[0].Name);
+    }
+
     private static User CreateUser(string username)
     {
         return new User(username, "auth", "reset") { Id = Guid.NewGuid() };
@@ -123,6 +148,7 @@ public class UserSegmentPreferenceServiceTests
     {
         var userManager = new Mock<IUserManager>();
         userManager.Setup(m => m.Users).Returns(users);
+        userManager.Setup(m => m.UsersIds).Returns(users.Select(user => user.Id));
         return userManager;
     }
 }

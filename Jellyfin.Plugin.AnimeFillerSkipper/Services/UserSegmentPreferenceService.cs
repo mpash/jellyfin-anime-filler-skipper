@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Jellyfin.Database.Implementations.Entities;
 using Jellyfin.Plugin.AnimeFillerSkipper.Models;
 using MediaBrowser.Common.Extensions;
 using MediaBrowser.Controller;
@@ -29,7 +30,7 @@ public class UserSegmentPreferenceService : IUserSegmentPreferenceService
 
     public SegmentPreferenceStatusDto GetUnknownSegmentActionStatus()
     {
-        var users = _userManager.Users
+        var users = GetUsers()
             .OrderBy(user => user.Username, StringComparer.OrdinalIgnoreCase)
             .Select(user =>
             {
@@ -63,7 +64,7 @@ public class UserSegmentPreferenceService : IUserSegmentPreferenceService
             ? null
             : userIds.ToHashSet();
 
-        var users = _userManager.Users
+        var users = GetUsers()
             .Where(user => selectedUserIds == null || selectedUserIds.Contains(user.Id))
             .ToList();
 
@@ -81,6 +82,21 @@ public class UserSegmentPreferenceService : IUserSegmentPreferenceService
         }
 
         return new UpdateSegmentPreferenceResult { UpdatedCount = users.Count };
+    }
+
+    private IReadOnlyList<User> GetUsers()
+    {
+        var users = (_userManager.Users ?? Enumerable.Empty<User>()).ToList();
+        if (users.Count > 0)
+        {
+            return users;
+        }
+
+        return (_userManager.UsersIds ?? Enumerable.Empty<Guid>())
+            .Select(id => _userManager.GetUserById(id))
+            .Where(user => user != null)
+            .Cast<User>()
+            .ToList();
     }
 
     private Dictionary<string, string?> GetCustomPreferences(Guid userId)

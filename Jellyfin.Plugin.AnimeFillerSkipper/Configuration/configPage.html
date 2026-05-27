@@ -86,6 +86,101 @@
                 return source[pascalName] === undefined ? source[camelName] : source[pascalName];
             }
 
+            function parseResult(result) {
+                if (typeof result !== 'string') {
+                    return result;
+                }
+
+                try {
+                    return JSON.parse(result);
+                } catch (error) {
+                    return result;
+                }
+            }
+
+            function getUsersFromResult(result) {
+                const parsed = parseResult(result);
+                if (!parsed) {
+                    return [];
+                }
+
+                if (Array.isArray(parsed)) {
+                    return parsed;
+                }
+
+                const users = valueOf(parsed, 'Users', 'users');
+                if (Array.isArray(users)) {
+                    return users;
+                }
+
+                const items = valueOf(parsed, 'Items', 'items');
+                if (Array.isArray(items)) {
+                    return items;
+                }
+
+                const value = valueOf(parsed, 'Value', 'value');
+                if (value && value !== parsed) {
+                    return getUsersFromResult(value);
+                }
+
+                return [];
+            }
+
+            function getUserId(user) {
+                return valueOf(user, 'Id', 'id');
+            }
+
+            function getUserName(user) {
+                return valueOf(user, 'Name', 'name') || valueOf(user, 'Username', 'username') || getUserId(user);
+            }
+
+            function getUserAction(user) {
+                return valueOf(user, 'Action', 'action') || 'None';
+            }
+
+            function renderUsers(users) {
+                usersContainer.innerHTML = '';
+
+                if (!users.length) {
+                    setStatus('No users found.');
+                    return;
+                }
+
+                users.forEach(function (user) {
+                    const label = document.createElement('label');
+                    label.className = 'checkboxContainer';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'chkAnimeFillerSkipperUser';
+                    checkbox.value = getUserId(user);
+
+                    const span = document.createElement('span');
+                    span.textContent = getUserName(user) + ' (' + getUserAction(user) + ')';
+
+                    label.appendChild(checkbox);
+                    label.appendChild(span);
+                    usersContainer.appendChild(label);
+                });
+
+                setStatus('');
+            }
+
+            function loadUsersFallback() {
+                const usersPromise = typeof ApiClient.getUsers === 'function'
+                    ? ApiClient.getUsers()
+                    : ApiClient.ajax({
+                        type: 'GET',
+                        url: getUrl('Users')
+                    });
+
+                usersPromise.then(function (users) {
+                    renderUsers(getUsersFromResult(users));
+                }, function () {
+                    setStatus('Unable to load users.');
+                });
+            }
+
             function loadConfig() {
                 ApiClient.ajax({
                     type: 'GET',
@@ -107,34 +202,15 @@
                     type: 'GET',
                     url: getUrl('AnimeFillerSkipper/SegmentPreferences/Unknown')
                 }).then(function (result) {
-                    usersContainer.innerHTML = '';
-
-                    const users = valueOf(result, 'Users', 'users') || [];
+                    const users = getUsersFromResult(result);
                     if (!users.length) {
-                        setStatus('No users found.');
+                        loadUsersFallback();
                         return;
                     }
 
-                    users.forEach(function (user) {
-                        const label = document.createElement('label');
-                        label.className = 'checkboxContainer';
-
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.className = 'chkAnimeFillerSkipperUser';
-                        checkbox.value = valueOf(user, 'Id', 'id');
-
-                        const span = document.createElement('span');
-                        span.textContent = valueOf(user, 'Name', 'name') + ' (' + valueOf(user, 'Action', 'action') + ')';
-
-                        label.appendChild(checkbox);
-                        label.appendChild(span);
-                        usersContainer.appendChild(label);
-                    });
-
-                    setStatus('');
+                    renderUsers(users);
                 }, function () {
-                    setStatus('Unable to load users.');
+                    loadUsersFallback();
                 });
             }
 
