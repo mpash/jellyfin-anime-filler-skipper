@@ -7,6 +7,10 @@ RELEASE_DIR = release
 PLUGIN_NAME = Jellyfin.Plugin.AnimeFillerSkipper
 DLL = $(PLUGIN_NAME).dll
 HTMLPACK = HtmlAgilityPack.dll
+BASH = bash
+ifeq ($(OS),Windows_NT)
+BASH = cmd /c bash
+endif
 VERSION ?= $$(grep -oPm1 '<Version>\K[^<]+' $(PROJECT) || echo 1.0.0.0)
 JELLYFIN_PLUGIN_DIR ?= $(HOME)/.local/share/jellyfin/plugins/$(PLUGIN_NAME)
 
@@ -49,10 +53,10 @@ restore:
 # Version format: major.minor.patch.build (e.g. 1.0.0.0)
 
 bump-patch:
-	@scripts/bump-version.sh 2
+	@$(BASH) scripts/bump-version.sh 2
 
 bump-minor:
-	@scripts/bump-version.sh 1
+	@$(BASH) scripts/bump-version.sh 1
 
 bump-major:
-	@scripts/bump-version.sh 0
+	@$(BASH) scripts/bump-version.sh 0
