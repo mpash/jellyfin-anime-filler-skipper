@@ -1,63 +1,303 @@
 <div id="AnimeFillerSkipperConfigPage" data-role="page" class="page type-interior pluginConfigurationPage">
+    <style>
+        #AnimeFillerSkipperConfigPage .afs-layout {
+            display: grid;
+            grid-template-columns: 16rem minmax(0, 1fr);
+            gap: 2rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-sidebar {
+            border-right: 1px solid rgba(255, 255, 255, .14);
+            padding-right: .75rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-nav {
+            background: transparent;
+            border: 0;
+            border-radius: .35rem;
+            color: inherit;
+            cursor: pointer;
+            display: block;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: .25rem 0;
+            padding: .85rem 1rem;
+            text-align: left;
+            width: 100%;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-nav.is-active {
+            background: rgba(0, 164, 220, .18);
+            color: #00a4dc;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-panel[hidden] {
+            display: none;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-toolbar {
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, .14);
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-search {
+            max-width: 26rem;
+            width: 100%;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-browser {
+            display: grid;
+            grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+            gap: 1.25rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-series-list {
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+            max-height: 62vh;
+            overflow: auto;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-series-button {
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: .35rem;
+            color: inherit;
+            cursor: pointer;
+            padding: .8rem;
+            text-align: left;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-series-button.is-active {
+            background: rgba(20, 45, 95, .82);
+            border-color: rgba(0, 164, 220, .72);
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-series-title,
+        #AnimeFillerSkipperConfigPage .afs-episode-title {
+            font-weight: 700;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-muted {
+            color: rgba(255, 255, 255, .62);
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-counts,
+        #AnimeFillerSkipperConfigPage .afs-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-top: .4rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-badge {
+            background: rgba(255, 255, 255, .1);
+            border-radius: 999px;
+            color: rgba(255, 255, 255, .78);
+            display: inline-block;
+            font-size: .78rem;
+            line-height: 1;
+            padding: .35rem .55rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-badge-filler {
+            background: rgba(220, 80, 80, .24);
+            color: #ff9a9a;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-badge-mixed {
+            background: rgba(220, 170, 40, .24);
+            color: #ffd477;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-detail-header {
+            border-bottom: 1px solid rgba(255, 255, 255, .14);
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-season-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-bottom: 1rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-season-tab {
+            background: rgba(255, 255, 255, .08);
+            border: 0;
+            border-radius: .35rem .35rem 0 0;
+            color: inherit;
+            cursor: pointer;
+            font-weight: 700;
+            padding: .75rem 1rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-season-tab.is-active {
+            border-bottom: 2px solid #00a4dc;
+            color: #00a4dc;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-episode-list {
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-episode {
+            align-items: center;
+            background: rgba(255, 255, 255, .05);
+            border-radius: .35rem;
+            display: grid;
+            gap: .8rem;
+            grid-template-columns: 6rem minmax(0, 1fr) auto;
+            padding: .65rem .8rem;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-episode.is-tagged {
+            background: rgba(20, 45, 95, .82);
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-thumb {
+            align-items: center;
+            aspect-ratio: 16 / 9;
+            background: rgba(255, 255, 255, .09);
+            border-radius: .25rem;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-thumb img {
+            height: 100%;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        #AnimeFillerSkipperConfigPage .afs-empty {
+            border: 1px dashed rgba(255, 255, 255, .18);
+            border-radius: .35rem;
+            color: rgba(255, 255, 255, .66);
+            padding: 1.25rem;
+        }
+
+        @media (max-width: 56rem) {
+            #AnimeFillerSkipperConfigPage .afs-layout,
+            #AnimeFillerSkipperConfigPage .afs-browser {
+                grid-template-columns: 1fr;
+            }
+
+            #AnimeFillerSkipperConfigPage .afs-sidebar {
+                border-bottom: 1px solid rgba(255, 255, 255, .14);
+                border-right: 0;
+                display: flex;
+                gap: .5rem;
+                padding-bottom: .75rem;
+                padding-right: 0;
+            }
+
+            #AnimeFillerSkipperConfigPage .afs-episode {
+                grid-template-columns: 5rem minmax(0, 1fr);
+            }
+
+            #AnimeFillerSkipperConfigPage .afs-episode-state {
+                grid-column: 2;
+            }
+        }
+    </style>
+
     <div data-role="content">
         <div class="content-primary">
             <h1>Anime Filler Skipper</h1>
 
-            <form id="AnimeFillerSkipperConfigForm">
-                <div class="verticalSection">
-                    <h2>Configuration</h2>
+            <div class="afs-layout">
+                <nav class="afs-sidebar" aria-label="Anime Filler Skipper settings">
+                    <button type="button" class="afs-nav is-active" data-afs-panel="general">General</button>
+                    <button type="button" class="afs-nav" data-afs-panel="identified">Identified Filler</button>
+                </nav>
 
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="AnimeFillerSkipperCacheExpirationHours">Cache expiration hours</label>
-                        <input is="emby-input" id="AnimeFillerSkipperCacheExpirationHours" type="number" min="1" step="1" required />
-                    </div>
+                <main>
+                    <section id="AnimeFillerSkipperGeneralPanel" class="afs-panel" data-afs-panel="general">
+                        <form id="AnimeFillerSkipperConfigForm">
+                            <div class="verticalSection">
+                                <h2>Configuration</h2>
 
-                    <label class="checkboxContainer">
-                        <input is="emby-checkbox" id="AnimeFillerSkipperTreatMixedAsFiller" type="checkbox" />
-                        <span>Treat mixed canon/filler episodes as filler</span>
-                    </label>
+                                <div class="inputContainer">
+                                    <label class="inputLabel inputLabelUnfocused" for="AnimeFillerSkipperCacheExpirationHours">Cache expiration hours</label>
+                                    <input is="emby-input" id="AnimeFillerSkipperCacheExpirationHours" type="number" min="1" step="1" required />
+                                </div>
 
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="AnimeFillerSkipperRequestDelayMs">Request delay ms</label>
-                        <input is="emby-input" id="AnimeFillerSkipperRequestDelayMs" type="number" min="0" step="100" required />
-                    </div>
+                                <label class="checkboxContainer">
+                                    <input is="emby-checkbox" id="AnimeFillerSkipperTreatMixedAsFiller" type="checkbox" />
+                                    <span>Treat mixed canon/filler episodes as filler</span>
+                                </label>
 
-                    <button is="emby-button" type="submit" class="raised button-submit">
-                        <span>Save</span>
-                    </button>
+                                <div class="inputContainer">
+                                    <label class="inputLabel inputLabelUnfocused" for="AnimeFillerSkipperRequestDelayMs">Request delay ms</label>
+                                    <input is="emby-input" id="AnimeFillerSkipperRequestDelayMs" type="number" min="0" step="100" required />
+                                </div>
 
-                    <p id="AnimeFillerSkipperConfigStatus"></p>
-                </div>
-            </form>
+                                <button is="emby-button" type="submit" class="raised button-submit">
+                                    <span>Save</span>
+                                </button>
 
-            <form id="AnimeFillerSkipperSegmentForm">
-                <div class="verticalSection">
-                    <h2>Filler skip button</h2>
-                    <p>Enable Jellyfin Web skip prompts for filler segments.</p>
+                                <p id="AnimeFillerSkipperConfigStatus"></p>
+                            </div>
+                        </form>
 
-                    <div class="selectContainer">
-                        <label class="selectLabel" for="AnimeFillerSkipperAction">Action</label>
-                        <select is="emby-select" id="AnimeFillerSkipperAction">
-                            <option value="AskToSkip">Ask to skip</option>
-                            <option value="Skip">Skip automatically</option>
-                            <option value="None">None</option>
-                        </select>
-                    </div>
+                        <form id="AnimeFillerSkipperSegmentForm">
+                            <div class="verticalSection">
+                                <h2>Filler skip button</h2>
+                                <p>Enable Jellyfin Web skip prompts for filler segments.</p>
 
-                    <div id="AnimeFillerSkipperUsers" class="checkboxList"></div>
+                                <div class="selectContainer">
+                                    <label class="selectLabel" for="AnimeFillerSkipperAction">Action</label>
+                                    <select is="emby-select" id="AnimeFillerSkipperAction">
+                                        <option value="AskToSkip">Ask to skip</option>
+                                        <option value="Skip">Skip automatically</option>
+                                        <option value="None">None</option>
+                                    </select>
+                                </div>
 
-                    <div>
-                        <button is="emby-button" type="button" id="AnimeFillerSkipperSelectAll" class="raised button-submit">
-                            <span>Select all</span>
-                        </button>
-                        <button is="emby-button" type="button" id="AnimeFillerSkipperApply" class="raised button-submit">
-                            <span>Apply to selected users</span>
-                        </button>
-                    </div>
+                                <div id="AnimeFillerSkipperUsers" class="checkboxList"></div>
 
-                    <p id="AnimeFillerSkipperStatus"></p>
-                </div>
-            </form>
+                                <div>
+                                    <button is="emby-button" type="button" id="AnimeFillerSkipperSelectAll" class="raised button-submit">
+                                        <span>Select all</span>
+                                    </button>
+                                    <button is="emby-button" type="button" id="AnimeFillerSkipperApply" class="raised button-submit">
+                                        <span>Apply to selected users</span>
+                                    </button>
+                                </div>
+
+                                <p id="AnimeFillerSkipperStatus"></p>
+                            </div>
+                        </form>
+                    </section>
+
+                    <section id="AnimeFillerSkipperIdentifiedPanel" class="afs-panel" data-afs-panel="identified" hidden>
+                        <div class="afs-toolbar">
+                            <h2>Identified Filler</h2>
+                            <div class="inputContainer afs-search">
+                                <input is="emby-input" id="AnimeFillerSkipperSearch" type="search" placeholder="Search all series..." />
+                            </div>
+                        </div>
+
+                        <p id="AnimeFillerSkipperIdentifiedStatus"></p>
+
+                        <div id="AnimeFillerSkipperBrowser" class="afs-browser" hidden>
+                            <div id="AnimeFillerSkipperSeriesList" class="afs-series-list"></div>
+                            <div id="AnimeFillerSkipperSeriesDetail"></div>
+                        </div>
+                    </section>
+                </main>
+            </div>
         </div>
     </div>
 
@@ -69,6 +309,16 @@
             const usersContainer = page.querySelector('#AnimeFillerSkipperUsers');
             const status = page.querySelector('#AnimeFillerSkipperStatus');
             const actionSelect = page.querySelector('#AnimeFillerSkipperAction');
+            const identifiedStatus = page.querySelector('#AnimeFillerSkipperIdentifiedStatus');
+            const browser = page.querySelector('#AnimeFillerSkipperBrowser');
+            const seriesListContainer = page.querySelector('#AnimeFillerSkipperSeriesList');
+            const seriesDetail = page.querySelector('#AnimeFillerSkipperSeriesDetail');
+            const searchInput = page.querySelector('#AnimeFillerSkipperSearch');
+            let identifiedSeries = [];
+            let filteredSeries = [];
+            let selectedSeriesId = null;
+            let selectedSeasonIndex = 0;
+            let identifiedLoaded = false;
 
             function setConfigStatus(message) {
                 configStatus.textContent = message || '';
@@ -78,11 +328,19 @@
                 status.textContent = message || '';
             }
 
+            function setIdentifiedStatus(message) {
+                identifiedStatus.textContent = message || '';
+            }
+
             function getUrl(path) {
                 return ApiClient.getUrl(path);
             }
 
             function valueOf(source, pascalName, camelName) {
+                if (!source) {
+                    return undefined;
+                }
+
                 return source[pascalName] === undefined ? source[camelName] : source[pascalName];
             }
 
@@ -138,6 +396,39 @@
                 return valueOf(user, 'Action', 'action') || 'None';
             }
 
+            function getSeriesName(series) {
+                return valueOf(series, 'Name', 'name') || 'Unknown Series';
+            }
+
+            function getSeriesId(series) {
+                return valueOf(series, 'Id', 'id');
+            }
+
+            function getSeasons(series) {
+                return valueOf(series, 'Seasons', 'seasons') || [];
+            }
+
+            function getEpisodes(season) {
+                return valueOf(season, 'Episodes', 'episodes') || [];
+            }
+
+            function getEpisodeNumber(episode) {
+                return valueOf(episode, 'EpisodeNumber', 'episodeNumber');
+            }
+
+            function getFillerState(episode) {
+                return valueOf(episode, 'FillerState', 'fillerState') || 'None';
+            }
+
+            function getRuntime(episode) {
+                const ticks = valueOf(episode, 'RunTimeTicks', 'runTimeTicks') || 0;
+                if (!ticks) {
+                    return '';
+                }
+
+                return Math.round(ticks / 600000000) + ' min';
+            }
+
             function renderUsers(users) {
                 usersContainer.innerHTML = '';
 
@@ -146,12 +437,14 @@
                     return;
                 }
 
-                users.forEach(function (user) {
+                users.forEach(function (user, index) {
                     const label = document.createElement('label');
                     label.className = 'checkboxContainer';
+                    label.htmlFor = 'AnimeFillerSkipperUser' + index;
 
-                    const checkbox = document.createElement('input');
+                    const checkbox = document.createElement('input', { is: 'emby-checkbox' });
                     checkbox.type = 'checkbox';
+                    checkbox.id = label.htmlFor;
                     checkbox.className = 'chkAnimeFillerSkipperUser';
                     checkbox.value = getUserId(user);
 
@@ -214,6 +507,270 @@
                 });
             }
 
+            function createBadge(text, className) {
+                const badge = document.createElement('span');
+                badge.className = 'afs-badge ' + (className || '');
+                badge.textContent = text;
+                return badge;
+            }
+
+            function getTaggedCount(series) {
+                return (valueOf(series, 'FillerCount', 'fillerCount') || 0)
+                    + (valueOf(series, 'MixedCount', 'mixedCount') || 0);
+            }
+
+            function applySeriesFilter() {
+                const query = (searchInput.value || '').trim().toLowerCase();
+                filteredSeries = identifiedSeries.filter(function (series) {
+                    if (!query) {
+                        return true;
+                    }
+
+                    return getSeriesName(series).toLowerCase().indexOf(query) !== -1
+                        || ((valueOf(series, 'Slug', 'slug') || '').toLowerCase().indexOf(query) !== -1);
+                });
+
+                if (!filteredSeries.some(function (series) { return getSeriesId(series) === selectedSeriesId; })) {
+                    selectedSeriesId = filteredSeries.length ? getSeriesId(filteredSeries[0]) : null;
+                    selectedSeasonIndex = 0;
+                }
+
+                renderIdentifiedFiller();
+            }
+
+            function renderSeriesList() {
+                seriesListContainer.innerHTML = '';
+
+                if (!filteredSeries.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'afs-empty';
+                    empty.textContent = 'No matching series.';
+                    seriesListContainer.appendChild(empty);
+                    return;
+                }
+
+                filteredSeries.forEach(function (series) {
+                    const button = document.createElement('button');
+                    const seriesId = getSeriesId(series);
+                    const fillerCount = valueOf(series, 'FillerCount', 'fillerCount') || 0;
+                    const mixedCount = valueOf(series, 'MixedCount', 'mixedCount') || 0;
+                    button.type = 'button';
+                    button.className = 'afs-series-button' + (seriesId === selectedSeriesId ? ' is-active' : '');
+
+                    const title = document.createElement('div');
+                    title.className = 'afs-series-title';
+                    title.textContent = getSeriesName(series);
+
+                    const counts = document.createElement('div');
+                    counts.className = 'afs-counts';
+                    counts.appendChild(createBadge(fillerCount + ' filler', fillerCount ? 'afs-badge-filler' : ''));
+                    counts.appendChild(createBadge(mixedCount + ' mixed', mixedCount ? 'afs-badge-mixed' : ''));
+
+                    if (!valueOf(series, 'HasCachedData', 'hasCachedData')) {
+                        counts.appendChild(createBadge('No cache'));
+                    }
+
+                    button.appendChild(title);
+                    button.appendChild(counts);
+                    button.addEventListener('click', function () {
+                        selectedSeriesId = seriesId;
+                        selectedSeasonIndex = 0;
+                        renderIdentifiedFiller();
+                    });
+
+                    seriesListContainer.appendChild(button);
+                });
+            }
+
+            function renderSeasonTabs(series) {
+                const seasons = getSeasons(series);
+                const tabs = document.createElement('div');
+                tabs.className = 'afs-season-tabs';
+
+                seasons.forEach(function (season, index) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'afs-season-tab' + (index === selectedSeasonIndex ? ' is-active' : '');
+                    button.textContent = (valueOf(season, 'Name', 'name') || 'Season Unknown') + ' (' + getEpisodes(season).length + ')';
+                    button.addEventListener('click', function () {
+                        selectedSeasonIndex = index;
+                        renderIdentifiedFiller();
+                    });
+                    tabs.appendChild(button);
+                });
+
+                return tabs;
+            }
+
+            function renderEpisode(episode) {
+                const state = getFillerState(episode);
+                const episodeNumber = getEpisodeNumber(episode);
+                const row = document.createElement('div');
+                row.className = 'afs-episode' + (state !== 'None' ? ' is-tagged' : '');
+
+                const thumb = document.createElement('div');
+                thumb.className = 'afs-thumb';
+                if (valueOf(episode, 'HasPrimaryImage', 'hasPrimaryImage')) {
+                    const img = document.createElement('img');
+                    img.loading = 'lazy';
+                    img.alt = '';
+                    img.src = getUrl('Items/' + valueOf(episode, 'Id', 'id') + '/Images/Primary?fillWidth=160&fillHeight=90&quality=90');
+                    thumb.appendChild(img);
+                } else {
+                    thumb.textContent = episodeNumber || '-';
+                }
+
+                const body = document.createElement('div');
+                const title = document.createElement('div');
+                title.className = 'afs-episode-title' + (state === 'None' ? ' afs-muted' : '');
+                title.textContent = (episodeNumber ? episodeNumber + ': ' : '') + (valueOf(episode, 'Name', 'name') || 'Episode');
+
+                const meta = document.createElement('div');
+                meta.className = 'afs-meta afs-muted';
+                meta.textContent = getRuntime(episode);
+
+                body.appendChild(title);
+                body.appendChild(meta);
+
+                const stateCell = document.createElement('div');
+                stateCell.className = 'afs-episode-state';
+                if (state === 'Filler') {
+                    stateCell.appendChild(createBadge('Filler', 'afs-badge-filler'));
+                } else if (state === 'Mixed') {
+                    stateCell.appendChild(createBadge('Mixed', 'afs-badge-mixed'));
+                } else {
+                    stateCell.appendChild(createBadge('None'));
+                }
+
+                row.appendChild(thumb);
+                row.appendChild(body);
+                row.appendChild(stateCell);
+                return row;
+            }
+
+            function renderSeriesDetail(series) {
+                seriesDetail.innerHTML = '';
+
+                if (!series) {
+                    const empty = document.createElement('div');
+                    empty.className = 'afs-empty';
+                    empty.textContent = 'Select a series.';
+                    seriesDetail.appendChild(empty);
+                    return;
+                }
+
+                const seasons = getSeasons(series);
+                if (selectedSeasonIndex >= seasons.length) {
+                    selectedSeasonIndex = 0;
+                }
+
+                const header = document.createElement('div');
+                header.className = 'afs-detail-header';
+
+                const title = document.createElement('h2');
+                title.textContent = getSeriesName(series);
+                header.appendChild(title);
+
+                const meta = document.createElement('div');
+                meta.className = 'afs-meta';
+                meta.appendChild(createBadge(getTaggedCount(series) + ' identified'));
+                meta.appendChild(createBadge((valueOf(series, 'Slug', 'slug') || 'No slug')));
+
+                const lastUpdated = valueOf(series, 'LastUpdated', 'lastUpdated');
+                if (lastUpdated) {
+                    meta.appendChild(createBadge('Updated ' + new Date(lastUpdated).toLocaleString()));
+                } else {
+                    meta.appendChild(createBadge('No cached filler data'));
+                }
+
+                header.appendChild(meta);
+                seriesDetail.appendChild(header);
+
+                if (!seasons.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'afs-empty';
+                    empty.textContent = 'No episodes found for this series.';
+                    seriesDetail.appendChild(empty);
+                    return;
+                }
+
+                seriesDetail.appendChild(renderSeasonTabs(series));
+
+                const selectedSeason = seasons[selectedSeasonIndex];
+                const episodes = getEpisodes(selectedSeason);
+                const list = document.createElement('div');
+                list.className = 'afs-episode-list';
+
+                episodes.forEach(function (episode) {
+                    list.appendChild(renderEpisode(episode));
+                });
+
+                seriesDetail.appendChild(list);
+            }
+
+            function renderIdentifiedFiller() {
+                browser.hidden = !identifiedSeries.length;
+                renderSeriesList();
+
+                const selected = filteredSeries.filter(function (series) {
+                    return getSeriesId(series) === selectedSeriesId;
+                })[0];
+
+                renderSeriesDetail(selected);
+            }
+
+            function loadIdentifiedFiller() {
+                if (identifiedLoaded) {
+                    return;
+                }
+
+                identifiedLoaded = true;
+                setIdentifiedStatus('Loading identified filler...');
+                browser.hidden = true;
+
+                ApiClient.ajax({
+                    type: 'GET',
+                    url: getUrl('AnimeFillerSkipper/IdentifiedFiller')
+                }).then(function (result) {
+                    const parsed = parseResult(result) || {};
+                    identifiedSeries = valueOf(parsed, 'Series', 'series') || [];
+
+                    if (!identifiedSeries.length) {
+                        setIdentifiedStatus('No series found.');
+                        return;
+                    }
+
+                    selectedSeriesId = getSeriesId(identifiedSeries[0]);
+                    setIdentifiedStatus('');
+                    applySeriesFilter();
+                }, function () {
+                    identifiedLoaded = false;
+                    setIdentifiedStatus('Unable to load identified filler.');
+                });
+            }
+
+            function showPanel(panelName) {
+                page.querySelectorAll('.afs-nav').forEach(function (button) {
+                    button.classList.toggle('is-active', button.getAttribute('data-afs-panel') === panelName);
+                });
+
+                page.querySelectorAll('.afs-panel').forEach(function (panel) {
+                    panel.hidden = panel.getAttribute('data-afs-panel') !== panelName;
+                });
+
+                if (panelName === 'identified') {
+                    loadIdentifiedFiller();
+                }
+            }
+
+            page.querySelectorAll('.afs-nav').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    showPanel(button.getAttribute('data-afs-panel'));
+                });
+            });
+
+            searchInput.addEventListener('input', applySeriesFilter);
+
             page.querySelector('#AnimeFillerSkipperSelectAll').addEventListener('click', function () {
                 page.querySelectorAll('.chkAnimeFillerSkipperUser').forEach(function (checkbox) {
                     checkbox.checked = true;
@@ -222,7 +779,11 @@
 
             page.querySelector('#AnimeFillerSkipperApply').addEventListener('click', function () {
                 const userIds = Array.prototype.map.call(
-                    page.querySelectorAll('.chkAnimeFillerSkipperUser:checked'),
+                    Array.prototype.filter.call(
+                        page.querySelectorAll('.chkAnimeFillerSkipperUser'),
+                        function (checkbox) {
+                            return checkbox.checked;
+                        }),
                     function (checkbox) {
                         return checkbox.value;
                     });
@@ -243,7 +804,8 @@
                     }),
                     contentType: 'application/json'
                 }).then(function (result) {
-                    setStatus('Updated ' + valueOf(result, 'UpdatedCount', 'updatedCount') + ' user(s).');
+                    const parsed = parseResult(result);
+                    setStatus('Updated ' + valueOf(parsed, 'UpdatedCount', 'updatedCount') + ' user(s).');
                     loadUsers();
                 }, function () {
                     setStatus('Unable to save segment preferences.');
