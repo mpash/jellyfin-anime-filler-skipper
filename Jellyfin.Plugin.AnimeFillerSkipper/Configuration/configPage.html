@@ -35,9 +35,9 @@
                     <h2>Filler skip button</h2>
                     <p>Enable Jellyfin Web skip prompts for filler segments.</p>
 
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="AnimeFillerSkipperAction">Action</label>
-                        <select is="emby-select" id="AnimeFillerSkipperAction" label="Action">
+                    <div class="selectContainer">
+                        <label class="selectLabel" for="AnimeFillerSkipperAction">Action</label>
+                        <select is="emby-select" id="AnimeFillerSkipperAction">
                             <option value="AskToSkip">Ask to skip</option>
                             <option value="Skip">Skip automatically</option>
                             <option value="None">None</option>
@@ -82,14 +82,18 @@
                 return ApiClient.getUrl(path);
             }
 
+            function valueOf(source, pascalName, camelName) {
+                return source[pascalName] === undefined ? source[camelName] : source[pascalName];
+            }
+
             function loadConfig() {
                 ApiClient.ajax({
                     type: 'GET',
                     url: getUrl('Plugins/' + pluginId + '/Configuration')
                 }).then(function (config) {
-                    page.querySelector('#AnimeFillerSkipperCacheExpirationHours').value = config.CacheExpirationHours || 72;
-                    page.querySelector('#AnimeFillerSkipperTreatMixedAsFiller').checked = config.TreatMixedAsFiller !== false;
-                    page.querySelector('#AnimeFillerSkipperRequestDelayMs').value = config.RequestDelayMs || 2000;
+                    page.querySelector('#AnimeFillerSkipperCacheExpirationHours').value = valueOf(config, 'CacheExpirationHours', 'cacheExpirationHours') || 72;
+                    page.querySelector('#AnimeFillerSkipperTreatMixedAsFiller').checked = valueOf(config, 'TreatMixedAsFiller', 'treatMixedAsFiller') !== false;
+                    page.querySelector('#AnimeFillerSkipperRequestDelayMs').value = valueOf(config, 'RequestDelayMs', 'requestDelayMs') || 2000;
                     setConfigStatus('');
                 }, function () {
                     setConfigStatus('Unable to load configuration.');
@@ -105,17 +109,23 @@
                 }).then(function (result) {
                     usersContainer.innerHTML = '';
 
-                    result.Users.forEach(function (user) {
+                    const users = valueOf(result, 'Users', 'users') || [];
+                    if (!users.length) {
+                        setStatus('No users found.');
+                        return;
+                    }
+
+                    users.forEach(function (user) {
                         const label = document.createElement('label');
                         label.className = 'checkboxContainer';
 
                         const checkbox = document.createElement('input');
                         checkbox.type = 'checkbox';
                         checkbox.className = 'chkAnimeFillerSkipperUser';
-                        checkbox.value = user.Id;
+                        checkbox.value = valueOf(user, 'Id', 'id');
 
                         const span = document.createElement('span');
-                        span.textContent = user.Name + ' (' + user.Action + ')';
+                        span.textContent = valueOf(user, 'Name', 'name') + ' (' + valueOf(user, 'Action', 'action') + ')';
 
                         label.appendChild(checkbox);
                         label.appendChild(span);
@@ -157,7 +167,7 @@
                     }),
                     contentType: 'application/json'
                 }).then(function (result) {
-                    setStatus('Updated ' + result.UpdatedCount + ' user(s).');
+                    setStatus('Updated ' + valueOf(result, 'UpdatedCount', 'updatedCount') + ' user(s).');
                     loadUsers();
                 }, function () {
                     setStatus('Unable to save segment preferences.');
